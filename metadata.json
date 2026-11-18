@@ -1,0 +1,6 @@
+{
+  "name": "D'Mayra Layer Cake",
+  "description": "Tempahan Kek Lapis Sarawak artisanal dari Balik Pulau, Pulau Pinang. Penghantaran kurier seluruh Malaysia atau penghantaran terus di Balik Pulau.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,280 @@
+{
+  "entities": {
+    "Product": {
+      "title": "Product",
+      "description": "Artisanal layer cake catalogue item with Whole, Loaf, or Budget Combo formats.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "minLength": 2, "maxLength": 64, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "slug": { "type": "string", "minLength": 2, "maxLength": 80, "pattern": "^[a-z0-9\\-]+$" },
+        "name": { "type": "object" },
+        "description": { "type": "object" },
+        "flavour": { "type": "object" },
+        "ingredients": { "type": "object" },
+        "range": { "type": "string", "enum": ["budget", "classic", "cadbury", "trendy"] },
+        "baseFat": { "type": "string", "enum": ["butter", "margarine"] },
+        "imageUrl": { "type": "string", "maxLength": 500 },
+        "active": { "type": "boolean" },
+        "featured": { "type": "boolean" },
+        "leadTimeDays": { "type": "number" },
+        "allergens": { "type": "array" },
+        "formats": { "type": "object" },
+        "comboRule": { "type": "object" },
+        "durianNotice": { "type": "boolean" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "name", "range", "baseFat", "active", "leadTimeDays", "formats"]
+    },
+    "ShippingRate": {
+      "title": "ShippingRate",
+      "description": "Flat courier shipping rate by courier and Malaysian destination region.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "minLength": 2, "maxLength": 64, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "courier": { "type": "string", "enum": ["pos_laju", "citylink", "jnt"] },
+        "courierName": { "type": "string", "maxLength": 60 },
+        "region": { "type": "string", "enum": ["west_malaysia", "sabah", "sarawak"] },
+        "regionLabel": { "type": "object" },
+        "feeSen": { "type": "number" },
+        "estimatedDaysMin": { "type": "number" },
+        "estimatedDaysMax": { "type": "number" },
+        "trackingUrlTemplate": { "type": "string", "maxLength": 240 },
+        "active": { "type": "boolean" }
+      },
+      "required": ["id", "courier", "courierName", "region", "feeSen", "active"]
+    },
+    "CapacityDay": {
+      "title": "CapacityDay",
+      "description": "Daily baking slot capacity and dispatch/delivery flags keyed by yyyy-mm-dd.",
+      "type": "object",
+      "properties": {
+        "date": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$", "maxLength": 10 },
+        "limit": { "type": "number" },
+        "used": { "type": "number" },
+        "dispatchEnabled": { "type": "boolean" },
+        "selfDeliveryEnabled": { "type": "boolean" },
+        "blocked": { "type": "boolean" },
+        "note": { "type": "string", "maxLength": 200 }
+      },
+      "required": ["date", "limit", "used", "dispatchEnabled", "selfDeliveryEnabled", "blocked"]
+    },
+    "StoreSettings": {
+      "title": "StoreSettings",
+      "description": "Global store rules, Balik Pulau self-delivery config, dispatch weekdays, and terms.",
+      "type": "object",
+      "properties": {
+        "storeName": { "type": "string", "maxLength": 100 },
+        "ssmNo": { "type": "string", "maxLength": 50 },
+        "contactPhone": { "type": "string", "maxLength": 30 },
+        "contactEmail": { "type": "string", "maxLength": 120 },
+        "whatsappNumber": { "type": "string", "maxLength": 30 },
+        "defaultDailyLimit": { "type": "number" },
+        "defaultLeadTimeDays": { "type": "number" },
+        "dispatchDays": { "type": "array" },
+        "selfDelivery": { "type": "object" },
+        "freeShippingThresholdSen": { "type": "number" },
+        "termsVersion": { "type": "string", "maxLength": 20 },
+        "termsText": { "type": "object" },
+        "privacyText": { "type": "object" },
+        "holidays": { "type": "array" },
+        "seasonalCampaign": { "type": "object" }
+      },
+      "required": ["storeName", "defaultDailyLimit", "defaultLeadTimeDays", "selfDelivery", "termsVersion"]
+    },
+    "PromoCode": {
+      "title": "PromoCode",
+      "description": "Discount code rules managed by Owner/Manager.",
+      "type": "object",
+      "properties": {
+        "code": { "type": "string", "minLength": 2, "maxLength": 32, "pattern": "^[A-Z0-9_\\-]+$" },
+        "type": { "type": "string", "enum": ["percent", "fixed"] },
+        "value": { "type": "number" },
+        "minSpendSen": { "type": "number" },
+        "expiresAt": { "type": "string", "maxLength": 32 },
+        "usesLeft": { "type": "number" },
+        "active": { "type": "boolean" }
+      },
+      "required": ["code", "type", "value", "minSpendSen", "active"]
+    },
+    "Order": {
+      "title": "Order",
+      "description": "Customer layer cake order with buyer/recipient details, pricing in sen, and fulfilment state.",
+      "type": "object",
+      "properties": {
+        "orderNo": { "type": "string", "minLength": 6, "maxLength": 32, "pattern": "^[A-Z0-9\\-]+$" },
+        "trackingToken": { "type": "string", "minLength": 16, "maxLength": 64, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "buyerUid": { "type": "string", "maxLength": 128 },
+        "buyer": { "type": "object" },
+        "recipient": { "type": "object" },
+        "items": { "type": "array" },
+        "fulfilment": { "type": "object" },
+        "pricing": { "type": "object" },
+        "payment": { "type": "object" },
+        "status": {
+          "type": "string",
+          "enum": ["pending_payment", "confirmed", "in_production", "packed", "shipped", "out_for_delivery", "delivered", "completed", "cancelled"]
+        },
+        "termsAccepted": { "type": "boolean" },
+        "termsVersion": { "type": "string", "maxLength": 20 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" },
+        "expiresAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["orderNo", "trackingToken", "buyer", "recipient", "items", "fulfilment", "pricing", "payment", "status", "termsAccepted", "termsVersion"]
+    },
+    "OrderTracking": {
+      "title": "OrderTracking",
+      "description": "Public-safe zero-PII order tracking projection keyed by unguessable trackingToken.",
+      "type": "object",
+      "properties": {
+        "orderNo": { "type": "string", "maxLength": 32 },
+        "orderId": { "type": "string", "maxLength": 128 },
+        "status": { "type": "string", "maxLength": 32 },
+        "fulfilmentMethod": { "type": "string", "enum": ["courier", "self_delivery"] },
+        "courierName": { "type": "string", "maxLength": 60 },
+        "trackingNo": { "type": "string", "maxLength": 80 },
+        "trackingUrl": { "type": "string", "maxLength": 300 },
+        "dispatchDate": { "type": "string", "maxLength": 20 },
+        "estimatedArrival": { "type": "string", "maxLength": 60 },
+        "cityState": { "type": "string", "maxLength": 80 },
+        "itemsSummary": { "type": "array" },
+        "totalSen": { "type": "number" },
+        "amountDueNowSen": { "type": "number" },
+        "balanceDueSen": { "type": "number" },
+        "paymentStatus": { "type": "string", "maxLength": 32 },
+        "history": { "type": "array" },
+        "damageClaim": { "type": "object" },
+        "changeRequest": { "type": "object" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["orderNo", "orderId", "status", "fulfilmentMethod", "dispatchDate", "itemsSummary", "totalSen", "paymentStatus"]
+    },
+    "UserAccount": {
+      "title": "UserAccount",
+      "description": "Registered Google user profile with strict RBAC role.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "email": { "type": "string", "maxLength": 160 },
+        "displayName": { "type": "string", "maxLength": 100 },
+        "photoURL": { "type": "string", "maxLength": 400 },
+        "role": { "type": "string", "enum": ["owner", "manager", "helper", "customer"] },
+        "active": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "email", "displayName", "role", "active"]
+    },
+    "CustomerProfile": {
+      "title": "CustomerProfile",
+      "description": "Customer private saved addresses and phone number.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "phone": { "type": "string", "maxLength": 24 },
+        "savedAddresses": { "type": "array" },
+        "marketingConsent": { "type": "boolean" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "savedAddresses", "marketingConsent"]
+    },
+    "CustomRequest": {
+      "title": "CustomRequest",
+      "description": "Whole cake quotation request for flavours not in catalogue.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "maxLength": 100 },
+        "phone": { "type": "string", "maxLength": 24 },
+        "email": { "type": "string", "maxLength": 120 },
+        "requestedFlavour": { "type": "string", "maxLength": 120 },
+        "targetDate": { "type": "string", "maxLength": 20 },
+        "notes": { "type": "string", "maxLength": 400 },
+        "status": { "type": "string", "enum": ["new", "quoted", "closed"] },
+        "quoteNotes": { "type": "string", "maxLength": 400 },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "phone", "requestedFlavour", "status"]
+    },
+    "Review": {
+      "title": "Review",
+      "description": "Post-order customer review moderated by staff.",
+      "type": "object",
+      "properties": {
+        "orderNo": { "type": "string", "maxLength": 32 },
+        "authorName": { "type": "string", "maxLength": 80 },
+        "uid": { "type": "string", "maxLength": 128 },
+        "rating": { "type": "number" },
+        "text": { "type": "string", "maxLength": 400 },
+        "photoUrl": { "type": "string", "maxLength": 400 },
+        "approved": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["orderNo", "authorName", "uid", "rating", "text", "approved"]
+    },
+    "AuditLog": {
+      "title": "AuditLog",
+      "description": "Immutable admin audit log for pricing, capacity, shipping, and status updates.",
+      "type": "object",
+      "properties": {
+        "actorUid": { "type": "string", "maxLength": 128 },
+        "actorEmail": { "type": "string", "maxLength": 160 },
+        "action": { "type": "string", "maxLength": 80 },
+        "entity": { "type": "string", "maxLength": 80 },
+        "before": { "type": "string", "maxLength": 500 },
+        "after": { "type": "string", "maxLength": 500 },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "required": ["actorUid", "actorEmail", "action", "entity"]
+    }
+  },
+  "firestore": {
+    "/products/{productId}": {
+      "schema": { "$ref": "#/entities/Product" },
+      "description": "Layer cake catalogue items."
+    },
+    "/shippingRates/{rateId}": {
+      "schema": { "$ref": "#/entities/ShippingRate" },
+      "description": "Flat courier rates per courier and region."
+    },
+    "/capacity/{dayId}": {
+      "schema": { "$ref": "#/entities/CapacityDay" },
+      "description": "Daily baking slot capacity and blocked flags."
+    },
+    "/settings/{settingId}": {
+      "schema": { "$ref": "#/entities/StoreSettings" },
+      "description": "Storewide delivery, dispatch, and terms settings."
+    },
+    "/promos/{promoId}": {
+      "schema": { "$ref": "#/entities/PromoCode" },
+      "description": "Promotional discount codes."
+    },
+    "/orders/{orderId}": {
+      "schema": { "$ref": "#/entities/Order" },
+      "description": "Customer cake orders containing PII."
+    },
+    "/orderTracking/{trackingToken}": {
+      "schema": { "$ref": "#/entities/OrderTracking" },
+      "description": "Public-safe tracking projections keyed by secret token."
+    },
+    "/users/{uid}": {
+      "schema": { "$ref": "#/entities/UserAccount" },
+      "description": "Authenticated user accounts and staff roles."
+    },
+    "/customers/{uid}": {
+      "schema": { "$ref": "#/entities/CustomerProfile" },
+      "description": "Customer saved addresses and contact preferences."
+    },
+    "/customRequests/{requestId}": {
+      "schema": { "$ref": "#/entities/CustomRequest" },
+      "description": "Custom whole-cake quote inquiries."
+    },
+    "/reviews/{reviewId}": {
+      "schema": { "$ref": "#/entities/Review" },
+      "description": "Customer testimonials moderated by staff."
+    },
+    "/auditLogs/{logId}": {
+      "schema": { "$ref": "#/entities/AuditLog" },
+      "description": "Audit log of staff mutations."
+    }
+  }
+}

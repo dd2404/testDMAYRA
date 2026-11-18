@@ -1,0 +1,34 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null && request.auth.token.email_verified == true;
+    }
+
+    function isStaff() {
+      return isSignedIn() && (
+        request.auth.token.email == 'TVET1720@gmail.com' ||
+        firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.role in ['owner', 'manager', 'helper']
+      );
+    }
+
+    // Product images: public read, staff write up to 5MB
+    match /products/{productId}/{fileName} {
+      allow read: if true;
+      allow write: if isStaff() &&
+        request.resource.size <= 5 * 1024 * 1024 &&
+        request.resource.contentType.matches('image/.*');
+    }
+
+    // Order claims / bank transfer receipts: up to 5MB images under order token path
+    match /orders/{orderToken}/{fileName} {
+      allow read: if isStaff() || isSignedIn();
+      allow write: if request.resource.size <= 5 * 1024 * 1024 &&
+        request.resource.contentType.matches('image/.*');
+    }
+  }
+}
